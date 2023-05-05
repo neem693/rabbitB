@@ -1,0 +1,40 @@
+server:
+  port: 8082
+
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        selectItem-out-0:
+          destination: orders-exchange
+          binder: rabbit
+        receiveFromProcessing-in-0:
+          destination: processing-exchange
+          group: processing-exchange-group
+          binder: rabbit
+      rabbit:
+        bindings:
+          selectItem-out-0:
+            producer:
+              exchangeType: topic
+              routingKeyExpression: headers['routingKey']
+          receiveFromProcessing-in-0:
+            consumer:
+              bindingRoutingKey: 'processing1,processing2'
+              bindingRoutingKeyDelimiter: ','
+              exchangeType: topic
+              durableSubscription: true
+              autoBindDlq: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
+  application:
+    name: microservice-b
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8762/eureka
